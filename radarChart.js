@@ -1,5 +1,8 @@
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
+/////////////// Written by Nadieh Bremer ////////////////
+////////////////// VisualCinnamon.com ///////////////////
+/////////// Inspired by the code of alangrafu ///////////
 /////////////////////////////////////////////////////////
 	
 function RadarChart(id, data, options) {
@@ -15,6 +18,7 @@ function RadarChart(id, data, options) {
 	 dotRadius: 4, 			//The size of the colored circles of each blog
 	 opacityCircles: 0.1, 	//The opacity of the circles of each blob
 	 strokeWidth: 2, 		//The width of the stroke around each blob
+	 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
 	 color: d3.scale.category10()	//Color function
 	};
 	
@@ -134,9 +138,13 @@ function RadarChart(id, data, options) {
 	
 	//The radial line function
 	var radarLine = d3.svg.line.radial()
-		.interpolate("cardinal-closed")
+		.interpolate("linear-closed")
 		.radius(function(d) { return rScale(d.value); })
 		.angle(function(d,i) {	return i*angleSlice; });
+		
+	if(cfg.roundStrokes) {
+		radarLine.interpolate("cardinal-closed");
+	}
 				
 	//Create a wrapper for the blobs	
 	var blobWrapper = g.selectAll(".radarWrapper")
