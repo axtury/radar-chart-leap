@@ -49,56 +49,7 @@
 				width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
 				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 					
-			////////////////////////////////////////////////////////////// 
-			////////////////////////// Data ////////////////////////////// 
-			////////////////////////////////////////////////////////////// 
-
-			// var data = [
-			// 		  [//Essex
-			// 			{axis:"Education",value:0.22},
-			// 			{axis:"Food sales",value:0.28},
-			// 			{axis:"Food service",value:0.29},
-			// 			{axis:"Health care Outpatient",value:0.14},
-			// 			{axis:"Lodging",value:0.44},
-			// 			{axis:"Mercantile Retail (other than mall)",value:0.34},
-			// 			{axis:"Mercantile Enclosed and strip malls",value:0.23},
-			// 			{axis:"Office",value:0.19},
-			// 			{axis:"Public assembly",value:0.49},
-			// 			{axis:"Religious worship",value:0.45},
-			// 			{axis:"Service",value:0.31},
-			// 			{axis:"Warehouse and storage",value:0.21},
-							
-			// 		  ],[//Gloucester
-			// 			{axis:"Education",value:0.30},
-			// 			{axis:"Food sales",value:0.36},
-			// 			{axis:"Food service",value:0.40},
-			// 			{axis:"Health care Outpatient",value:0.10},
-			// 			{axis:"Lodging",value:0.15},
-			// 			{axis:"Mercantile Retail (other than mall)",value:0.33},
-			// 			{axis:"Mercantile Enclosed and strip malls",value:0.35},
-			// 			{axis:"Office",value:0.26},
-			// 			{axis:"Public assembly",value:0.20},
-			// 			{axis:"Religious worship",value:0.44},
-			// 			{axis:"Service",value:0.12},
-			// 			{axis:"Warehouse and storage",value:0.20},
-						
-			// 		  ],[//Rockport
-			// 			{axis:"Education",value:0.25},
-			// 			{axis:"Food sales",value:0.18},
-			// 			{axis:"Food service",value:0.31},
-			// 			{axis:"Health care Outpatient",value:0.20},
-			// 			{axis:"Lodging",value:0.44},
-			// 			{axis:"Mercantile Retail (other than mall)",value:0.5},
-			// 			{axis:"Mercantile Enclosed and strip malls",value:0.37},
-			// 			{axis:"Office",value:0.24},
-			// 			{axis:"Public assembly",value:0.23},
-			// 			{axis:"Religious worship",value:0.14},
-			// 			{axis:"Service",value:0.12},
-			// 			{axis:"Warehouse and storage",value:0.31},
-						
-			// 		  ]
-			// 		];
-			// 		console.log("example data: ", data);
+			
 			////////////////////////////////////////////////////////////// 
 			//////////////////// Draw the Chart ////////////////////////// 
 			////////////////////////////////////////////////////////////// 
@@ -111,16 +62,19 @@
 			  w: width,
 			  h: height,
 			  margin: margin,
-			  maxValue: 10000000,
+			  maxValue: 100,
 			  levels: 5,
 			  roundStrokes: true,
 			  color: color
 			};
-			
-			//Call function to draw the Radar chart
+			////////////////////////////////////////////////////////////// 
+			////////////////////////// Data ////////////////////////////// 
+			////////////////////////////////////////////////////////////// 
+
 		d3.csv('data.csv', function(data) {
 			console.log("raw data: ", data);
-			
+
+			///// nested the raw data so the radar-chart can read the data correctly ////
 			var nested_data = d3.nest()
 				.key(function(d) { return d.group; })
 				.entries(data);
@@ -128,6 +82,7 @@
 			console.log("applying d3.nest: ", nested_data);
 			var munged_nested = nested_data.map(function(obj, index) { 
 
+			///// mapping the results of d3.nest ////
 				console.log("mapping the result of d3.nest: ", obj, " at ", index);
 				return obj.values.map(function(obj, index) {
 
@@ -135,7 +90,23 @@
 					return { axis: obj.axis, value: obj.value };
 				});
 			})
+			
+			//// denested the data to access the values to make the scale interactive using the reduce function////
+			var townMaxValue = Math.max.apply(Math, munged_nested.map(function(town) { 
+								return town.map(function(data) { 
+									return parseInt(data.value) });
+							})
+							.reduce(function(town, towns) {
+								return towns.concat(town);
+							}));
 
+			console.log (munged_nested);
+			console.log(townMaxValue); 
+
+			//// added a buffer of 10% of the max value to the radar chart////
+			radarChartOptions.maxValue = townMaxValue + (townMaxValue * .10);
+
+			////////// Call function to draw the Radar chart ////////////
 			RadarChart(".radarChart", munged_nested, radarChartOptions);
 		});
 			
