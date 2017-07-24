@@ -10,7 +10,7 @@
 
 		<!-- D3.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-		
+
 		<style>
 			body {
 				font-family: 'Open Sans', sans-serif;
@@ -21,43 +21,43 @@
 				text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
 				cursor: default;
 			}
-			
+
 			.legend {
 				font-family: 'Raleway', sans-serif;
 				fill: #333333;
 			}
-			
+
 			.tooltip {
 				fill: #333333;
 			}
 		</style>
-	
+
 	</head>
 	<body>
 
 		<div class="radarChart"></div>
 
-		<script src="radarChart.js"></script>	
+		<script src="radarChart.js"></script>
 		<script>
-      
+
       /* Radar chart design created by Nadieh Bremer - VisualCinnamon.com */
-      
-			////////////////////////////////////////////////////////////// 
-			//////////////////////// Set-Up ////////////////////////////// 
-			////////////////////////////////////////////////////////////// 
+
+			//////////////////////////////////////////////////////////////
+			//////////////////////// Set-Up //////////////////////////////
+			//////////////////////////////////////////////////////////////
 			var margin = {top: 100, right: 100, bottom: 100, left: 100},
 				width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
 				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-					
-			
-			////////////////////////////////////////////////////////////// 
-			//////////////////// Draw the Chart ////////////////////////// 
-			////////////////////////////////////////////////////////////// 
-			
+
+
+			//////////////////////////////////////////////////////////////
+			//////////////////// Draw the Chart //////////////////////////
+			//////////////////////////////////////////////////////////////
+
 
 			var color = d3.scale.ordinal()
 				.range(["#EDC951","#CC333F","#00A0B0"]);
-				
+
 			var radarChartOptions = {
 			  w: width,
 			  h: height,
@@ -67,9 +67,9 @@
 			  roundStrokes: true,
 			  color: color
 			};
-			////////////////////////////////////////////////////////////// 
-			////////////////////////// Data ////////////////////////////// 
-			////////////////////////////////////////////////////////////// 
+			//////////////////////////////////////////////////////////////
+			////////////////////////// Data //////////////////////////////
+			//////////////////////////////////////////////////////////////
 
 		d3.csv('data.csv', function(data) {
 			console.log("raw data: ", data);
@@ -80,9 +80,9 @@
 				.entries(data);
 
 			console.log("applying d3.nest: ", nested_data);
-			var munged_nested = nested_data.map(function(obj, index) { 
+			var munged_nested = nested_data.map(function(obj, index) {
 
-			///// mapping the results of d3.nest ////
+			///// The two console.log statemments verify the results of d3.nest ////
 				console.log("mapping the result of d3.nest: ", obj, " at ", index);
 				return obj.values.map(function(obj, index) {
 
@@ -90,18 +90,20 @@
 					return { axis: obj.axis, value: obj.value };
 				});
 			})
-			
-			//// denested the data to access the values to make the scale interactive using the reduce function////
-			var townMaxValue = Math.max.apply(Math, munged_nested.map(function(town) { 
-								return town.map(function(data) { 
+
+			//// reduce the data to access the values to make the scale interactive using the reduce function////
+			var townMaxValue = Math.max.apply(Math, munged_nested.map(function(town) {
+								return town.map(function(data) {
 									return parseInt(data.value) });
 							})
 							.reduce(function(town, towns) {
 								return towns.concat(town);
 							}));
 
+///// The two console.log statemments verify the results of the reduce function ////
+
 			console.log (munged_nested);
-			console.log(townMaxValue); 
+			console.log(townMaxValue);
 
 			//// added a buffer of 10% of the max value to the radar chart////
 			radarChartOptions.maxValue = townMaxValue + (townMaxValue * .10);
@@ -109,7 +111,7 @@
 			////////// Call function to draw the Radar chart ////////////
 			RadarChart(".radarChart", munged_nested, radarChartOptions);
 		});
-			
+
 		</script>
 	</body>
 </html>
